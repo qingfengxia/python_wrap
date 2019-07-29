@@ -1,0 +1,9 @@
+[submodule "pybind11_binder/binder"]
+	path = pybind11_binder/binder
+	url = https://github.com/RosettaCommons/binder.git
+[submodule "pybind11_binder/pybind11"]
+	path = pybind11_binder/pybind11
+	url = https://github.com/RosettaCommons/pybind11.git
+[submodule "pybind11_wrap/pybind11"]
+	path = pybind11_wrap/pybind11
+	url = https://github.com/pybind/pybind11.git
