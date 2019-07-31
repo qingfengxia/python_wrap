@@ -22,6 +22,7 @@ cdef class PyRectangle:
         self.c_rect.move(dx, dy)
 
 """
+# is there any friend class, to access private variable?
     # Attribute access
     @property
     def x0(self):

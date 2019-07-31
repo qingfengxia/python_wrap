@@ -1,4 +1,4 @@
-cdef extern from "../src/Rectangle.cpp":
+cdef extern from "Rectangle.cpp":
     pass
 
 # Declare the class with cdef
