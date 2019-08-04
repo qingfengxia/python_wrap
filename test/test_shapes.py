@@ -1,3 +1,11 @@
+import os.path
+import sys
+currentdir = os.path.dirname(os.path.abspath(__file__))
+parentdir = os.path.dirname(currentdir)
+
+sys.path.insert(0,parentdir+os.path.sep + "lib")
+
+
 import shapes_pybind11 as pw
 import shapes_cython as cw
 

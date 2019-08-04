@@ -1,3 +1,9 @@
+/** 
+   copyright Qingfeng Xia 2019
+   CC BY 4.0
+*/
+
+
 #include <pybind11/pybind11.h>
 #include "../src/Rectangle.h"
 #include <string>

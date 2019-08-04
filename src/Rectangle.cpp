@@ -1,3 +1,8 @@
+/** 
+   copyright Qingfeng Xia 2019
+   CC BY 4.0
+*/
+
 #include <iostream>
 #include "Rectangle.h"
 

@@ -1,3 +1,8 @@
+#
+#   copyright Qingfeng Xia 2019
+#   CC BY 4.0
+#
+
 cmake_minimum_required(VERSION 3.0)
 project("python wrap interoperation")
 

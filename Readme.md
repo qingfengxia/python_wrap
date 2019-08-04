@@ -29,9 +29,9 @@ Using C++ template to simplify wrapping
 
 Dedicated wrapping tools mainly targeting on the specific project, but can be used in other projects
 
-+ Qt
-+ GTK
-+ VTK, etc.
++ Qt5: https://wiki.qt.io/Qt_for_Python/Shiboken
++ GTK3 : see [architecture of object introspectin](https://wiki.gnome.org/Projects/GObjectIntrospection/Architecture), it is based on libFFI.so and typelib (API info)
++ VTK, etc. 
 
 Other solutions
 
@@ -130,6 +130,8 @@ binder is a tool to generate pybind11 wrapping code automatically, but it still 
 
 There is also a tool to generate wrapping code automatically, ?
 
+
+
 ### swig:
 try install the latest swig for better c++11 support `sudo apt-get install -y swig3` 
 
@@ -156,11 +158,23 @@ CMake has official support to SWIG `swig_add_library`
 ### cppyy:
 installation is a little complicated, it is recommended to install into conda virtualenv
 
-cppyy is JIT based, there is not compiling needed. see `test_cppyy.py`
+cppyy is JIT based, there is not compiling needed. see `test_cppyy.py`. Meanwhile, it is possible to generate importable python binding like other tools.  Here is an example with cmake integeration 
+
+> cppyy-knn: An example of cppyy-generated bindings for a simple knn  implementation. 
+
+ https://github.com/camillescott/cppyy-knn
+when following this repo readme, you need append  ` -c conda-forge` to find packages   To create conda env. 
+
+ my expression is, there is still some little work to make it more pythonic, fortunately, it has been done in this [cppyy-knn repo]( https://github.com/camillescott/cppyy-knn)
+
+
+ http://www.camillescott.org/2019/04/11/cmake-cppyy/
 
 ### SIP of PyQt5 or shiboken2 for PySide2:
 
 todo:
+
+https://blog.qt.io/blog/2018/05/31/write-python-bindings/
 
 ## testing
 
@@ -188,3 +202,19 @@ https://intermediate-and-advanced-software-carpentry.readthedocs.io/en/latest/c+
 
 
 
+## License (CC BY 4.0)
+
+<a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
+
+In short: 
+ **Share** — copy and redistribute the material in any medium or format 
+
+ **Adapt** — remix, transform, and build upon the material  for any purpose, even commercially. 
+
+**Attribution** — You must give [appropriate credit](https://creativecommons.org/licenses/by/4.0/#), provide a link to the license, and [indicate if changes were made](https://creativecommons.org/licenses/by/4.0/#). You may do so in any reasonable manner, but not in any way that suggests the licensor endorses you or your use.
+
+see license file in this repo
+
+**Note**:  This CC BY 4.0 does not cover code from other projects:
+Cython cmake file from: https://github.com/thewtex/cython-cmake-example
+`boost_wrap\boost_python.cpp` which comes from stackoverflow pages, it is covered `cc by-sa 3.0`
