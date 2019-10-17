@@ -1,4 +1,12 @@
+
+
+# python wrap
+
 Demonstration, comparison and inter-operation of different c++11 class python wrapping methods, like swig, pybind11, binder, cython, cppyy, etc, with CMake and python `setuptools` integration setup.
+
+Some other similar comparison:
+
+<https://iscinumpy.gitlab.io/post/tools-to-bind-to-python/>
 
 ## Feature
 
@@ -25,7 +33,14 @@ Using C++ template to simplify wrapping
 
 - [boost.python](https://www.boost.org/doc/libs/1_70_0/libs/python/doc/html/index.html): part of boost lib, it avoid lots of boiler-plate code by c++ template technology
 - [`pybind11`](https://github.com/pybind/pybind11): similar but with more features than boost.python
-- `binder`, can generate pybind11 wrapping code automatically
+
+Automatic binding generation
+
+- [cppyy](https://cppyy.readthedocs.io/en/latest/): LLVM JIT solution without writing any wrap code, based on `cling`, still in heavy-development.
+- `numba`: generous automatic binding generation without user interference, but limited to math and numpy API, i.e. it can not easily link/use with third-party API.
+- [PyBindGen](https://pythonhosted.org/PyBindGen/index.html): similar with cppyy, using GCC to parse C++ header and  generate wrapping code.
+- `binder`,  a tool can generate pybind11 wrapping code automatically
+-  `boost.python`: <https://github.com/personalrobotics/chimera>
 
 Dedicated wrapping tools mainly targeting on the specific project, but can be used in other projects
 
@@ -36,10 +51,10 @@ Dedicated wrapping tools mainly targeting on the specific project, but can be us
 Other solutions
 
 + [cppyy](https://cppyy.readthedocs.io/en/latest/): LLVM JIT solution without writing wrap code, based on `cling`, still in heavy-development
-
 +  [swig](http://www.swig.org): wrap C/C++ to several languages like Java, and interpreting lanugages like python, etc.
 + [cython3](<http://docs.cython.org/): write c++ module in python grammar, it is possible to wrap existing shared binary library given header files.
 +  [pyrex](http://www.cosc.canterbury.ac.nz/greg.ewing/python/Pyrex/): discontinued, superseded by Cython
++  py++: automatically extract cpp method and parameter types using gcc-xml and generate the wrapping code
 
 
 >Disclaimer: This short description to each tool is very subjective, and for no means it is a complete list. the following suggestion is highly subjective
@@ -57,7 +72,7 @@ If the project has no dependency on binary library, but C++ STL. It is recommend
 
 For large project like <https://github.com/LaughlinResearch/pyOCCT>,  project specific fork of binder, see <https://github.com/LaughlinResearch/pyOCCT_binder> is used with the specific pyOCCT project.
 
-## Repo organisation
+## Repo organization
 
 + `src` : c++ header and source files
 
@@ -124,7 +139,7 @@ example setup can be adapted from: https://github.com/pybind/python_example/blob
 
 binder is a tool to generate pybind11 wrapping code automatically, but it still require user configuration. 
 
-### boost.python:
+### `boost.python`:
 
 `sudo apt-get install libboost-python-dev` it may still built against python2. 
 
@@ -156,19 +171,39 @@ CMake has official support to SWIG `swig_add_library`
 <http://www.swig.org/Doc3.0/SWIGDocumentation.html#Introduction_build_system>
 
 ### cppyy:
-installation is a little complicated, it is recommended to install into conda virtualenv
-
-cppyy is JIT based, there is not compiling needed. see `test_cppyy.py`. Meanwhile, it is possible to generate importable python binding like other tools.  Here is an example with cmake integeration 
+cppyy is JIT based, there is not compiling needed. see `test_cppyy.py`. Meanwhile, it is possible to generate importable python binding like other tools.  Here is an example with cmake integration 
 
 > cppyy-knn: An example of cppyy-generated bindings for a simple knn  implementation. 
 
  https://github.com/camillescott/cppyy-knn
 when following this repo readme, you need append  ` -c conda-forge` to find packages   To create conda env. 
 
- my expression is, there is still some little work to make it more pythonic, fortunately, it has been done in this [cppyy-knn repo]( https://github.com/camillescott/cppyy-knn)
-
+My experience, there is still some little work to make it more pythonic, fortunately, example can be found in this [cppyy-knn repo]( https://github.com/camillescott/cppyy-knn)
 
  http://www.camillescott.org/2019/04/11/cmake-cppyy/
+
+
+
+installation is a little complicated, it is recommended to install into conda virtualenv on linux
+
+#### pip on windows
+
+successfully `pip install cppyy` and built the wheel on window 10 with
+
++ visual studio 2019 build tool (Visual C++ compiler version 14.2)
+
+- windows 10 x64
+- cppyy 1.5.4
+- Conda python 3.7.3 (64bit) [MSC v.1915 64 bit (AMD64)]
+
+Building pre-compiled headers failed on startup, it is fine to run but with performance impact
+
+> Fatal in <UnknownClass::GetListOfGlobals>: fInterpreter not initialized
+> aborting
+
+On windows 10, only C++14 is supported, while on Linux, C++17 is supported by cppyy. check out by:
+
+```print(cppyy.gbl.gInterpreter.ProcessLine("__cplusplus;"))```
 
 ### SIP of PyQt5 or shiboken2 for PySide2:
 
@@ -186,13 +221,45 @@ https://blog.qt.io/blog/2018/05/31/write-python-bindings/
 
 2. while pybind11 link to shared object, checked by `ldd this_python.so`
 
-3. testing the mixed, then polymorphal code should be done
+3. testing the mixed, then polymorphic code should be done
 
    https://cppyy.readthedocs.io/en/latest/classes.html
 
 ### CI matrix
 
 https://github.com/pybind/pybind11/blob/master/.travis.yml
+
+
+
+## Compatibility and ABI
+
+### Mixing different wrapping is possible 
+
+FreeCAD project has a mixed approaches of:
+
++ swig
+
++ PyCXX,  C++ wrapper of C-API in header `#include <Python.h>`
+
++ pybind11 may be used by some extension
+
+  It is all about ABI compatibility. 
+
+  + C or C++ runtime ABI tends to be more stable on Linux, 
+
+  + Compiler like gcc has the compatible ABI since G++ 5.x.  
+
+  + Python 3.8 and 3.7 has different ABI, although C-API is compatible (only adding new API),  there is subset API is ABI stable since 3.2, see <https://docs.python.org/3/c-api/stable.html>
+
+    
+
+  Hint: compiling FreeCAD from source,  using the same compiler as used to compile python, should work
+
+### Different C++ compilers can compile module 
+
+pybind11 wrapper cpp file can be compiled by both "mingw32-x64 v8.1" and "Visual C++ compiler version 14.2" . 
+
+Tested: Anaconda python3.7 (64bit), which has the rumtime`vcruntime140`. 
 
 ## Extra readings
 
