@@ -26,11 +26,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 ######################################
 option(USE_CYTHON "use cython" ON)
 option(USE_PYBIND11 "use pybind11" ON)
+option(USE_CPPYY "use cppyy" OFF)
 option(USE_SWIG "use swig to generate interface code" ON)  # error not fixed
 option(USE_BINDER "use binder to generate pybind11 wrap code" OFF)
 
 
-find_package(PythonInterp REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
 message(STATUS "Found Python: ${PYTHON_EXECUTABLE} (found version \"${PYTHON_VERSION_STRING}\")")
 
 # cross OS setup
@@ -69,7 +70,7 @@ endif()
 
 ######################################
 # swig build
-# camke and setup.py are both provided in subdir
+# cmake and setup.py are both provided in subdir
 ######################################
 if(USE_SWIG)
     add_subdirectory("swig_wrap")
@@ -77,10 +78,18 @@ endif()
 
 ######################################
 # cython build
-# camke and setup.py are both provided in subdir
+# cmake and setup.py are both provided in subdir
 ######################################
 if(USE_CYTHON)
     add_subdirectory("cython_wrap")
+endif()
+
+######################################
+# cppyy build
+# cmake and setup.py are both provided in subdir
+######################################
+if(USE_CPPYY)
+    add_subdirectory("cppyy_wrap")
 endif()
 
 

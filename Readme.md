@@ -171,20 +171,23 @@ CMake has official support to SWIG `swig_add_library`
 <http://www.swig.org/Doc3.0/SWIGDocumentation.html#Introduction_build_system>
 
 ### cppyy:
-cppyy is JIT based, there is not compiling needed. see `test_cppyy.py`. Meanwhile, it is possible to generate importable python binding like other tools.  Here is an example with cmake integration 
+`cppyy` is  based on cling JIT intepreter, there is not compiling needed. see `test_cppyy.py`. Meanwhile, it is possible to generate importable python binding like other tools.   
+
+Here is an example cmake integration in `cppyy_wrap` folder, based on
 
 > cppyy-knn: An example of cppyy-generated bindings for a simple knn  implementation. 
 
  https://github.com/camillescott/cppyy-knn
-when following this repo readme, you need append  ` -c conda-forge` to find packages   To create conda env. 
+when following this repo Readme, you need append  ` -c conda-forge` to find packages.  To create conda env. 
 
 My experience, there is still some little work to make it more pythonic, fortunately, example can be found in this [cppyy-knn repo]( https://github.com/camillescott/cppyy-knn)
 
  http://www.camillescott.org/2019/04/11/cmake-cppyy/
 
-
-
 installation is a little complicated, it is recommended to install into conda virtualenv on linux
+
+set extra envvar by export `EXTRA_CLING_ARGS`, e.g.
+`export EXTRA_CLING_ARGS='-O2 -std=c++17' && python`
 
 #### pip on windows
 
