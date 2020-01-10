@@ -199,7 +199,7 @@ successfully `pip install cppyy` and built the wheel on window 10 with
 - cppyy 1.5.4
 - Conda python 3.7.3 (64bit) [MSC v.1915 64 bit (AMD64)]
 
-Building pre-compiled headers failed on startup, it is fine to run but with performance impact
+Building pre-compiled headers failed on startup for cppyy 1.5.x, it seems fix in verion 1.6.x. However, it is fine to run test with performance impact
 
 > Fatal in <UnknownClass::GetListOfGlobals>: fInterpreter not initialized
 > aborting
@@ -234,9 +234,60 @@ https://github.com/pybind/pybind11/blob/master/.travis.yml
 
 
 
+## numpy array and Eigen Matrix interface
+
+### pybind11 
+
+> [Eigen](http://eigen.tuxfamily.org/) is C++ header-based library for dense and sparse linear algebra. Due to its popularity and widespread adoption, pybind11 provides transparent conversion and limited mapping support between Eigen and Scientific Python linear algebra data types.
+
+`py::array_t` class, defiend in  `#include <pybind11/numpy.h>`,  will be automatically map into `numpy.array`
+
+see exampe
+
+<https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html>
+
+Official document has example to wrap `Eigen::MatrixXd` for numpy
+
+### cppyy
+
+`cppyy.LowLevelView` is used to convert `void*` buffer address back to numpy array `numpy.frombuffer()`, see example
+
+see <https://cppyy.readthedocs.io/en/latest/lowlevel.html#numpy-casts>
+
+passing numpy array to C++ , is surprisely hard. here is code tested to work
+
+`void* compressBlock(const unsigned char* im, std::vector<unsigned int> shape)`
+
+```python
+    buf = im.tobytes()  # bytes type and content is fine
+
+    #pbuf = im.ctypes.data_as(ctypes.c_ubyte* len(buf))
+    # TypeError: cast() argument 2 must be a pointer type, not c_ubyte_Array_4096
+    
+    #pbuf = ctypes.create_string_buffer(len(buf), buf) # only for unicode string type
+
+    # ctypes.POINTER(ctypes.c_ubyte)  is for byte** output parameter,
+    #pbuf = im.ctypes.data_as(ctypes.POINTER(ctypes.c_ubyte*len(buf))) #  error!
+    pbuf = array.array('B', buf)  # correct
+    
+    # from_buffer(buf)  TypeError: underlying buffer is not writable
+    #pbuf = (ctypes.c_ubyte * len(buf)).from_buffer_copy(buf)  # correctly
+    pbuf = ctypes.cast(buf, ctypes.POINTER(ctypes.c_ubyte * len(buf)))[0]  # correctly
+
+    print("type of pbuf ", type(pbuf))
+    print("content of pbuf: ", pbuf[:16])
+
+    h, w = im.shape[0]//block_size, im.shape[1]//block_size
+    arr = cppyy.gbl.compressBlock(pbuf, im.shape) # .reshape((h*w,))
+```
+
+
+
 ## Compatibility and ABI
 
 ### Mixing different wrapping is possible 
+
+On the python level, is it possible to use C-exnteions modules wrapped by different methods. 
 
 FreeCAD project has a mixed approaches of:
 
@@ -258,11 +309,28 @@ FreeCAD project has a mixed approaches of:
 
   Hint: compiling FreeCAD from source,  using the same compiler as used to compile python, should work
 
+### Passing C++ object around 
+
+see discussion on Cppyy documentation section:
+
+https://cppyy.readthedocs.io/en/latest/lowlevel.html#capsules
+
+> It is not possible to pass proxies from cppyy through function arguments of another binder/wrapper (and vice versa, with the exception of `ctypes`, see below), because each will use a different internal representation, including for type checking and extracting the C++ object address. However, all Python binders are able to rebind (just like `bind_object` above for cppyy) the result of at least one of the following:
+>
+> - **ll.addressof**: Takes a cppyy bound C++ object and returns its address as an integer value. Takes an optional `byref` parameter and if set to true, returns a pointer to the address instead.
+> - **ll.as_capsule**: Takes a cppyy bound C++ object and returns its address as a PyCapsule object. Takes an optional `byref` parameter and if set to true, returns a pointer to the address instead.
+> - **ll.as_cobject**: Takes a cppyy bound C++ object and returns its address as a PyCObject object for Python2 and a PyCapsule object for Python3. Takes an optional `byref` parameter and if set to true, returns a pointer to the address instead.
+> - **as_ctypes**: Takes a cppyy bound C++ object and returns its address as a `ctypes.c_void_p` object. Takes an optional `byref` parameter and if set to true, returns a pointer to the address instead.
+
 ### Different C++ compilers can compile module 
 
-pybind11 wrapper cpp file can be compiled by both "mingw32-x64 v8.1" and "Visual C++ compiler version 14.2" . 
+`pybind11` wrapper cpp file can be compiled by both "mingw32-x64 v8.1" and "Visual C++ compiler version 14.2" .   Python itself has compiled by one kind of compiler, usually is the platform default, such as VS studio on Windows. 
+
+Python 3.8 has unified release and debug compiling ABI. 
 
 Tested: Anaconda python3.7 (64bit), which has the rumtime`vcruntime140`. 
+
+
 
 ## Extra readings
 
