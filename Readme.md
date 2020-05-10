@@ -2,45 +2,45 @@
 
 # python wrap
 
-Demonstration, comparison and inter-operation of different c++11 class python wrapping methods, like swig, pybind11, binder, cython, cppyy, etc, with CMake and python `setuptools` integration setup.
+Demonstration, comparison and inter-operation of different c++11 class python wrapping methods, like swig, pybind11, boost-python, cython, cppyy, etc, with CMake and python `setuptools` integration example.
 
-Some other similar comparison:
+Demonstration of mixed C++ and Python debugging will come soon.
 
-<https://iscinumpy.gitlab.io/post/tools-to-bind-to-python/>
+Some other similar comparison: <https://iscinumpy.gitlab.io/post/tools-to-bind-to-python/>
 
 ## Feature
 
-+ demo and comparison of diff methods
++ demonstrate and comparr of different language binding methods
 + demonstrate how to build wrap code and link shared object, instead of compile all from sources
 + build systems: `cmake`,  python `setup.py`
 + support C++11  with options setup in cmake and setup.py
 + investigate the inter-operation of compiled modules from different methods
 + illustration of supporting `numpy.ndarray`
++ introduce the approach of automated binding code generating
 + mixed debugging: debug C++ wrapping code when called in Python
 
 
 ## Tools to wrap python code
 
-### the list
+### The list of wrapping tools
 
 Wrapping binary library is possible, if header files are available.
 
-For C code/lib interfacing
-+ C-API:`#include <python.h>` 
+**For C code/lib interfacing**
++ directly use Python C-API: `#include <python.h>` 
 
-+ `ctypes`  foreign function library/module from the python standard lib, to wrap binary C library. see [cytpes official doc](https://docs.python.org/3/library/ctypes.html)
++ `ctypes`  foreign function library/module from the python standard lib, to interface binary C library in python. see [cytpes official doc](https://docs.python.org/3/library/ctypes.html)
 
 + [cffi](): an easier and automatic approach, but support only C
 
-  
 
-Using C++ template to simplify wrapping
+** Using C++ template to simplify wrapping**
 
 - [boost.python](https://www.boost.org/doc/libs/1_70_0/libs/python/doc/html/index.html): part of boost lib, it avoid lots of boiler-plate code by c++ template technology
 - [`pybind11`](https://github.com/pybind/pybind11): similar but with more features than boost.python
 - [PyCXX](http://cxx.sourceforge.net/): long existent C++ version for C-API: `<python.h>`
 
-Automatic binding generation
+**Automatic binding generation**
 
 - [cppyy](https://cppyy.readthedocs.io/en/latest/): LLVM JIT solution without writing any wrap code, based on `cling`, still in heavy-development.
 - `numba`: generous automatic binding generation without user interference, but limited to math and numpy API, i.e. it can not easily link/use with third-party API.
@@ -52,11 +52,11 @@ Wrap C++ code in C, as the bridge to other scripting language like python, javas
 
 + google tensorflow is a good example: <https://github.com/tensorflow/tensorflow>. 
 
-  swig has a not completed branch to generate C code for C++ code, <https://stackoverflow.com/questions/4547163/c-to-c-wrapper-using-swig-for-fltk>
++ swig has a not completed branch to generate C code for C++ code, <https://stackoverflow.com/questions/4547163/c-to-c-wrapper-using-swig-for-fltk>
   
   <https://github.com/swig/swig/tree/gsoc2012-c>
   
-  libclang may help to generate C interface to C++ code.
++ `libclang` may help to generate C interface to C++ code.
 
 Dedicated wrapping tools mainly targeting on the specific project, but can be used in other projects
 
@@ -70,8 +70,13 @@ Other solutions
 +  [swig](http://www.swig.org): wrap C/C++ to several languages like Java, and interpreting lanugages like python, etc.
 + [cython3](<http://docs.cython.org/): write c++ module in python grammar, it is possible to wrap existing shared binary library given header files.
 +  [pyrex](http://www.cosc.canterbury.ac.nz/greg.ewing/python/Pyrex/): discontinued, superseded by Cython
-+  py++: automatically extract cpp method and parameter types using gcc-xml and generate the wrapping code
++  [py++]: automatically extract cpp method and parameter types using gcc-xml and generate the wrapping code
 
+**translate python code into C++ for performance**
+There are some python tools that can compile computation expensive function into C module for better performance.
+
++ numba
++ dask
 
 >Disclaimer: This short description to each tool is very subjective, and for no means it is a complete list. the following suggestion is highly subjective
 
@@ -81,11 +86,11 @@ Other solutions
 
 + [cppimport]()  import wrapping cpp source code as normal python module
 + CMake support for: SWIG, CPPYY, pybind11
-+ python `setup.py`' s `build_ext`
++ python `setup.py` and `build_ext()`
 
 ### Subjective suggestion
 
-For a small project with several header files, pybind11 is recommended to write pyhtonic interface in a manageable way.
+For a small project with several header files, pybind11 is recommended to write pythonic interface in a manageable way.
 
 For a project with tens of headers, writing configuration file to control binder for code generation is recommended which can automatically generate boilerplate wrapping code,  <https://github.com/RosettaCommons/binder>.
 <https://cppbinder.readthedocs.io/en/latest/basics.html>
@@ -111,18 +116,16 @@ For large project like <https://github.com/LaughlinResearch/pyOCCT>,  project sp
 
 ### Environment
 
-This repo focuses on Python3, as 2.7.x has reached the end-of-life in Jan 2020.
+Tested by python3 on Ubuntu 18.04 and python2 on Ubuntu 16.04. This repo focuses on Python3, as 2.7.x has reached the end-of-life in Jan 2020.
 
-C++11 is the base line, in the future, C++17 and C++20 can be added.
+C++11 compiler is the minimum requirement, in the future, C++17 and C++20 can be added.
 
-Tested by python3 on Ubuntu 18.04 and python2 on Ubuntu 16.04 
 
-In order to work with cmake, DO NOT USE relative include path in cython "*.pxd" and swig `*.i` files.
-setup include directories in setup.py or cmakelists.txt instead!
+In order to work with cmake, DO NOT USE relative include path in cython "*.pxd" and swig `*.i` files. Setup include directories in `setup.py` or cmakelists.txt instead!
 
+### Limitations
 swig has error "can not find tuple" (C++11 std::tuple class) on cmake,
 swig has error can not find if built by setup.py on Ubuntu 16.04 
-
 
 SWIG and Cython generated wrap code is py2 and py3 compatible, dep on which python intepretor to run setup script
 
@@ -145,21 +148,38 @@ Cython cmake supported is provided by: https://github.com/thewtex/cython-cmake-e
 
 ### pybind11
 
-Cmake will detect system wide installation, if not , detect a downloaded repo to this folder. If both are not found, Cmake will prompt to install:
-
-
-
+Cmake will detect system wide installation, 
 `sudo apt-get install python3-pybind11 pybind11-dev`
+if not installed to system wide, detect a downloaded repo to this folder. If both are not found, CMake will prompt to install:
 
 `git submodule add https://github.com/pybind/pybind11.git`
 
-pybind11 also support setup.py and cppimport.
+pybind11 also support `setup.py` and `cppimport`. Example `setup.py` can be adapted from: https://github.com/pybind/python_example/blob/master/setup.py
 
-example setup can be adapted from: https://github.com/pybind/python_example/blob/master/setup.py
+### pybind11-binder  (written in C++)
 
-### pybind11-binder  (todo)
+`binder` is a tool to generate pybind11 wrapping code automatically, but it still require user configuration.  It is based on LLVM and Clang, written in C++.
 
-binder is a tool to generate pybind11 wrapping code automatically, but it still require user configuration. 
+source code: <https://github.com/RosettaCommons/binder>
+
+documentation: <https://cppbinder.readthedocs.io/en/latest/>
+
+### pybind11 binder written in python
+
+pyocct:  using his own binding generator, based on python-clangp, LGPL, OCCT 7.4 
+
+ https://github.com/LaughlinResearch/pyOCCT  
+
+macro and class template needs special treatment.
+
+```c++
+template <typename TheItemType>
+
+void bind_NCollection_Sequence(py::module &mod, std::string const &name, py::module_local const &local){
+
+py::class_<NCollection_Sequence<TheItemType>, NCollection_BaseSequence> cls_NCollection_Sequence(mod, name.c_str(), "Purpose: Definition of a sequence of elements indexed by an Integer in range of 1..n", local);
+    //...
+```
 
 ### `boost.python`:
 
