@@ -1,3 +1,8 @@
+
+# this file coming from https://github.com/pybind/python_example
+# to build the shared library,  python3 setup.py build_ext
+# this setup.py is complete and tested
+
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 import sys
@@ -24,7 +29,7 @@ class get_pybind_include(object):
 ext_modules = [
     Extension(
         'python_example',
-        ['src/main.cpp'],
+        ['shapes_pybind11.cpp', "../src/Rectangle.cpp"],
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),
@@ -69,7 +74,7 @@ class BuildExt(build_ext):
     """A custom build extension for adding compiler-specific options."""
     c_opts = {
         'msvc': ['/EHsc'],
-        'unix': [],
+        'unix': [ "-g"],  # debug mode, otherwise, "-O2"
     }
     l_opts = {
         'msvc': [],

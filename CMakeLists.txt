@@ -11,6 +11,10 @@ set(MY_PYBIND11_WRAP "shapes_pybind11")
 set(MY_SHARED_LIB "shapes")
 set(MY_MODULE "shapes")
 
+SET( CMAKE_BUILD_TYPE Debug)
+add_definitions("-DCMAKE_BUILD_TYPE=Debug")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+
 # can be set to C++14, 17 on a newer std
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,7 +22,8 @@ set(PYBIND11_CPP_STANDARD -std=c++11)
 
 #extra cmake module provided by this repo
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} 
-    "${CMAKE_CURRENT_SOURCE_DIR}/cMake" 
+    "${CMAKE_CURRENT_SOURCE_DIR}/cMake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/pybind11_wrap/tools/" 
     )
 
 ######################################
@@ -27,11 +32,14 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
 option(USE_CYTHON "use cython" ON)
 option(USE_PYBIND11 "use pybind11" ON)
 option(USE_CPPYY "use cppyy" OFF)
-option(USE_SWIG "use swig to generate interface code" ON)  # error not fixed
+option(USE_SWIG "use swig to generate interface code" OFF)  # error not fixed
 option(USE_BINDER "use binder to generate pybind11 wrap code" OFF)
 
 
-find_package(Python3 COMPONENTS Interpreter Development REQUIRED)
+find_package(Python3 COMPONENTS Interpreter Development)
+if (NOT ${PYTHON_VERSION_STRING})
+    find_package(PythonLibsNew 3 REQUIRED)
+endif()
 message(STATUS "Found Python: ${PYTHON_EXECUTABLE} (found version \"${PYTHON_VERSION_STRING}\")")
 
 # cross OS setup
