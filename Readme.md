@@ -67,12 +67,26 @@ Dedicated wrapping tools mainly targeting on the specific project, but can be us
 Other solutions
 
 + [cppyy](https://cppyy.readthedocs.io/en/latest/): LLVM JIT solution without writing wrap code, based on `cling`, still in heavy-development
-+  [swig](http://www.swig.org): wrap C/C++ to several languages like Java, and interpreting lanugages like python, etc.
-+ [cython3](<http://docs.cython.org/): write c++ module in python grammar, it is possible to wrap existing shared binary library given header files.
-+  [pyrex](http://www.cosc.canterbury.ac.nz/greg.ewing/python/Pyrex/): discontinued, superseded by Cython
-+  [py++]: automatically extract cpp method and parameter types using gcc-xml and generate the wrapping code
 
-**translate python code into C++ for performance**
++ [swig](http://www.swig.org): wrap C/C++ to several languages like Java, and interpreting lanugages like python, etc.
+
++ [cython3](<http://docs.cython.org/): write c++ module in python grammar, it is possible to wrap existing shared binary library given header files.
+
++ [pyrex](http://www.cosc.canterbury.ac.nz/greg.ewing/python/Pyrex/): discontinued, superseded by Cython
+
++ [py++](): automatically extract cpp method and parameter types using gcc-xml and generate the wrapping code
+
+  Py++ uses GCC C++ compiler to parse C++ source files and allows you to expose C++ code to Python in quick and elegant way using the Boost.Python library.
+
+  It uses the following steps to do so:
+
+   - source code is passed to GCC-XML
+   - GCC-XML passes it to GCC C++ compiler
+   - GCC-XML generates an XML description of a C++ program from GCC's internal
+     representation.
+   - Py++ uses pygccxml package to read GCC-XML generated file.
+
+**Auto Translate python code into C++ for performance**
 There are some python tools that can compile computation expensive function into C module for better performance.
 
 + numba
@@ -120,8 +134,15 @@ Tested by python3 on Ubuntu 18.04 and python2 on Ubuntu 16.04. This repo focuses
 
 C++11 compiler is the minimum requirement, in the future, C++17 and C++20 can be added.
 
-
 In order to work with cmake, DO NOT USE relative include path in cython "*.pxd" and swig `*.i` files. Setup include directories in `setup.py` or cmakelists.txt instead!
+
+On windows, by default all symbols are not exported, so *.lib will not be created, so in the toplevel cmakelists.txt
+
+```cmake
+SET(WINDOWS_EXPORT_ALL_SYMBOLS ON)
+```
+
+This line is added to  pyd target can be linked by  visual c++.
 
 ### Limitations
 swig has error "can not find tuple" (C++11 std::tuple class) on cmake,
@@ -295,15 +316,31 @@ https://github.com/pybind/pybind11/blob/master/.travis.yml
 
 ### pybind11 
 
+#### STL vector and python buffer protocol
+
+pybind11 has built-in support for   passing value of `std::vector<T>`. To pass reference, there are two ways, make it opaque, or more generic buffer protocol by `py::buffer_info`.
+
+#### pybind11 for numpy array
+
+and numpy.array as `py::array` or restricted scallar type by `py::array_t<double>`. `py::array_t<T>` class, defiend in  `#include <pybind11/numpy.h>`,  will be automatically map into `numpy.array`.  New data type for `py::array_t<T>` can be crated by `PYBIND11_NUMPY_DTYPE(struct_name, field1, ...)`.  For performance reason, index checking can be disabled by using `auto r = x.mutable_unchecked<3>()` where `x` is of type `py::array_t<T>`
+
+see more   <https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html>
+
+#### pybind11 for Eigen
+
 > [Eigen](http://eigen.tuxfamily.org/) is C++ header-based library for dense and sparse linear algebra. Due to its popularity and widespread adoption, pybind11 provides transparent conversion and limited mapping support between Eigen and Scientific Python linear algebra data types.
 
-`py::array_t` class, defiend in  `#include <pybind11/numpy.h>`,  will be automatically map into `numpy.array`
-
-see exampe
-
-<https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html>
-
 Official document has example to wrap `Eigen::MatrixXd` for numpy
+
+#### xtensor
+
+- `xtensor` is a C++14 library for multi-dimensional arrays enabling numpy-style broadcasting and lazy computing.
+
+  https://xtensor.readthedocs.io/en/latest/
+
+- `xtensor-python` header-only lib enables inplace use of numpy arrays in C++ with all the benefits from `xtensor`
+
+https://github.com/xtensor-stack/xtensor-python
 
 ### cppyy
 

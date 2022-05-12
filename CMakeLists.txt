@@ -45,6 +45,7 @@ message(STATUS "Found Python: ${PYTHON_EXECUTABLE} (found version \"${PYTHON_VER
 # cross OS setup
 IF(WIN32)
    # windows
+   SET(WINDOWS_EXPORT_ALL_SYMBOLS ON)
    SET(PY_EXTENSION "dll")
 ELSE()
    SET(PY_EXTENSION "so")
