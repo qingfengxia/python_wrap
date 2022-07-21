@@ -432,6 +432,8 @@ https://intermediate-and-advanced-software-carpentry.readthedocs.io/en/latest/c+
 
 [wrap binary C libriary using Cython](https://medium.com/@shamir.stav_83310/making-your-c-library-callable-from-python-by-wrapping-it-with-cython-b09db35012a3)
 
+[Setting up C++ development environment](https://www.scaler.com/topics/cpp/cpp-environment-setup/)
+
 
 
 ## License (CC BY 4.0)
